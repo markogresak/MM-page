@@ -1,4 +1,5 @@
 'use strict';
+var glob = require('glob');
 var Imagemin = require('imagemin');
 var exec = require('child_process').exec;
 var bin = './node_modules/.bin/';
@@ -11,13 +12,25 @@ exec(bin + 'postcss --use autoprefixer public/main.css | ' + bin + 'cleancss -o 
   console.log('minified main.css');
 });
 
-new Imagemin()
-  .src('public/images/**/*.png')
-  .dest('public/images')
-  .use(Imagemin.optipng({
-    optimizationLevel: 7,
-    progressive: true
-  }))
-  .run(function () {
+glob('public/images/**/*.png', {}, function (err, files) {
+  if (err) {
+    throw err;
+  }
+  var imageminPromises = files.map(function (file) {
+    return new Promise(function (resolve) {
+      new Imagemin()
+        .src(file)
+        .dest(file)
+        .use(Imagemin.optipng({
+          optimizationLevel: 7,
+          progressive: true
+        }))
+        .run(function () {
+          resolve();
+        });
+    });
+  });
+  Promise.all(imageminPromises).then(function () {
     console.log('minified images');
   });
+});
