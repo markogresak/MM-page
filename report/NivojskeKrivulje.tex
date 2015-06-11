@@ -41,6 +41,19 @@
   bgcolor = light-gray
 }
 
+\newminted{java}{
+  % remove first 2 characters (padding spaces)
+  gobble = 2,
+  % set left line (code block padding hack)
+  frame = leftline,
+  % 0 width for frame ruler (gives padding but is invisible)
+  framerule = 0pt,
+  % distance between frame and content
+  framesep = 8pt,
+  % set background
+  bgcolor = light-gray
+}
+
 \title{\huge{Nivojske krivulje} \\ \Large{\em{Druga projektna naloga}}}
 \author{
   Gašper Andrejc (63130002) \\
@@ -99,7 +112,123 @@ Triangulacija se danes uporablja za merjenja (npr. geodeti), navigacijo, izraču
 
 \section{Nivojske krivulje}
 
-Nivojska krivulja funkcije dveh spremenljivk je krivulja okoli katere ima funkcija konstantno vrednost. Je presek tridimenzonalnega grafa, ki predstavlja funkcijo, z neko poljubno ravnino \(z = z1\). Uporablja se za najrazličnejše predstavitve v naravi; s skupnim imenom se v slovenščini imenujejo ``izočrte'' - so črte, ki na zemljevidu povezujejo točke enakih vrednosti fizikalnih, meteoroloških ali jezikoslovnih količin (vir: \href{http://sl.wikipedia.org/wiki/Izo%C4%8Drte}{\underline{Wikipedia: ``Izočrte''}}). \par
-V našem projektu smo se ukvarjali z izočrto pod imenom ``izohipsa'', ki v naravi povezuje mesta z isto nadmorsko višino oziroma translirano za naš problem - je črta, ki povezuje točke, kjer ima funkcija enako vrednost. Ko pa smo se kasneje ukvarjali s podatki iz narave pa smo dejansko poskusili risati izohipse določenih geografskih področij.
+Nivojska krivulja funkcije dveh spremenljivk je krivulja okoli katere ima funkcija konstantno vrednost. Je presek tridimenzonalnega grafa, ki predstavlja funkcijo, z neko poljubno ravnino \(z = z1\). Uporablja se za najrazličnejše predstavitve v naravi; s skupnim imenom se v slovenščini imenujejo `izočrte' - so črte, ki na zemljevidu povezujejo točke enakih vrednosti fizikalnih, meteoroloških ali jezikoslovnih količin (vir: \href{http://sl.wikipedia.org/wiki/Izo%C4%8Drte}{\underline{Wikipedia: `Izočrte'}}). \par
+V našem projektu smo se ukvarjali z izočrto pod imenom `izohipsa, ki v naravi povezuje mesta z isto nadmorsko višino oziroma translirano za naš problem - je črta, ki povezuje točke, kjer ima funkcija enako vrednost. Ko pa smo se kasneje ukvarjali s podatki iz narave pa smo dejansko poskusili risati izohipse določenih geografskih področij.
+
+\section{Algoritem za triangulacijo domene in rekonstrukcijo ploskve}
+
+Algoritem za triangulacijo in rekonstrukcijo ploskve je napisan v jeziku Java, kjer nam class `Network' (v nadaljevanju kot `omrežje') opisuje celotno površino z vsemi vozlišči in povezavami, ki jih uporabljamo za risanje nivojnic.
+\par
+Najprej si izberemo nekaj točk in iz njih naredimo kvadratno mrežo – kartezični produkt. Za princip naloge smo lahko predpostavljali, da so točke enakomerno razporejene na mreži (torej razmak med vsako točko je konstanten in enak za vse). Je pa glede na podano funkcijo pomembno s kakšnim razmakom med točkami gradimo kartezični produkt. Torej, če si mi izberemo vsa števila od 1 do 3 z razmakom med njimi 1, dobimo kartezični produkt sestavljen iz 9 točk, kjer je natančnost rekonstrukcije 1 enota. Primer zgoraj opisanega kartezičnega produkta bi bile točke: ([1, 1], [1, 2], [1, 3] ….). Vsaka točka ima torej x in y koordinato. Naslednji korak je bil, da med vsemi temi točkami konstruiramo povezave in tako dobimo, v našem primeru 4, kvadrate. Za triangulacijo dodamo še v vsakem kvadratu eno (povsod isto) diagonalo. Rezultat je mreža sestavljena iz n trikotnikov (Slika 1).
+
+% slika1
+
+Mreža nam na tej točki predstavlja le natančnost, s katero bomo rekonstruirali ploskev. Kot opisano zgoraj, ima vsaka povezava dve točki – začetno in končno točko, vsaka točka pa x,y koordinate. Predno nadaljujemo s triangulacijo moramo v algoritmu urediti še vse povezave tako, da imamo nekje seznam, katere povezave so sosednje in katera vozlišča so sosednja – to potrebujemo za kasnejšo delovanje algoritma.
+
+% slika2
+
+Od tu naprej moramo x in y koordinato vsake točke vstaviti v našo funkcijo. Rezultat te funkcije nam predstavlja višino funkcije v podani točki. To vrednost dodelimo vsakemu vozlišču (Slika 1).
+\par
+Sedaj si izberemo neko ravnino, ki jo definiramo z z višino (v nadaljevanju `c'), s katero bomo presekali funkcijo. Postopek je tak, da pregledamo celotno omrežje in na vse daljice, kamor ta vrednost pade (odvisno od vrednosti funkcije, ki smo jo, kot je zgoraj opisano, dodelili vsakemu vozlišču), proporcionalno narišemo točko. Primer: če je začetek daljice definiran z vozliščem, ki ima vrednost 1.1, konec daljice 1.9, c pa 1.8, bomo nekje na konec daljice narisali točko. Točno kje se ta točka nariše je seveda pomembno, a je pomembno kasneje, ko se ta točka translira na originalne koordinate kartezičnega produkta (Slika 3).
+
+% slika3
+
+Predno se točke translirajo v originalne koordinate, je potrebno narisati še dejansko povezave, ki nam bodo predstavljale nivojske krivulje. To naredimo tako, da povežemo vse točke, ki so sosednje – tu nam pride prav seznam vseh sosednjih vozlišč in povezav, za kar smo poskrbeli na začetku algoritma. Po tem delu je čas, da, kot je opisano zgoraj, točke transliramo nazaj v prvotne koordinate.
+
+\begin{javacode}
+  Edge nedge = neighbourEdges.get(j);
+  /*
+   * if point is on edge, create a new Node with the calculated x and y
+   * properly proportioned depending on the original values
+   * we do that by calculating like this:
+   *       dist........100%
+   *       c - min.....x %
+   *
+   * this same proportion we later on apply to our own scale that we're
+   * going to use for graphic
+   */
+  if (pointIsOnEdge(nedge, c)) {
+    distance = Math.abs(nedge.startValue - nedge.endValue);
+    min = Math.min(nedge.startValue, nedge.endValue);
+    // proportion in %
+    proportion = ((Math.abs(c - min)) * 100) / distance;
+    // now we have to calculate x and y of the node
+    // if edge is vertical, we already have x and need to calculate y
+    // if edge is horizontal, the other way
+    newNodeX = 0;
+
+    newNodeY = 0;
+    // for the above, first calculate 'k'
+    Node startNode2 = net.nodes.get(nedge.startID);
+    Node endNode2 = net.nodes.get(nedge.endID);
+    boolean reverse2 = false;
+    if (startNode2.nodeValue > endNode2.nodeValue) {
+      reverse2 = true;
+    }
+
+\end{javacode}
+
+\pagebreak
+\begin{javacode}
+    k = (startNode2.y - endNode2.y) / (startNode2.x - endNode2.x);
+    if (k == 0) {
+      newNodeY = startNode2.y;
+    } else {
+      // need to calculate y
+      newNodeY = Math.min(startNode2.y,endNode2.y) + ((proportion * minDist)/100);
+      if (reverse2) {
+        newNodeY = Math.max(startNode2.y,endNode2.y) - ((proportion * minDist)/100);
+      }
+    }
+    if (k == Double.POSITIVE_INFINITY || k == Double.NEGATIVE_INFINITY) {
+      newNodeX = startNode2.x;
+    } else {
+      // need to calculate x
+      newNodeX = Math.min(startNode2.x,endNode2.x) + ((proportion*minDist)/100);
+      if (reverse2) {
+        newNodeX = Math.max(startNode2.x,endNode2.x) - ((proportion*minDist)/100);
+      }
+    }
+  }
+\end{javacode}
+
+\small{Primer translacije nazaj v prvotne koordinate; `reverse' zgoraj opisuje primer, ko se riše v drugo smer; predvsem če je funkcija definirana tudi na negativnih oseh (2. ali 4. kvadrant)}
+
+% slika 4
+% slika 5
+
+\section{Grafični prikaz ter težave algoritma}
+
+Za prikaz delovanja algoritma smo se odločili, da vse nivojnice prikažemo tudi grafično. Uporabljali smo javanske swing in awt knjižnice. Izhod zgoraj opisanega algoritma je množica vseh daljic (ena daljica je en del nivojske krivulje na podani višini), ki jih prejmejo razredi za risanje. Grafični prikaz kot tak je relativno preprost, ugotovili pa smo, da je potrebno za lepo sliko izredno dobro poznati obnašanje funkcije v različnih delih definicijskega območja. Poleg tega je za vsako funkcijo bilo potrebno ugotovili ravno pravšnjo velikost kartezičnega produkta ter korak povečevanje le tega. Za ugotavavljanje približnih vrednosti vseh teh parametrov smo si pomagali s prikazom funkcij na strani WolframAlpha (\href{http://www.wolframalpha.com/}{\underline{http://www.wolframalpha.com/}}) ter na strani Wikipedie\\ (\href{http://en.wikipedia.org/wiki/Test_functions_for_optimization}{\underline{http://en.wikipedia.org/wiki/Test\_functions\_for\_optimization}}). Torej kot primer: če je zaloga vrednosti neke funkcije od 0 do 1, smo naš izbor `c'-ja seveda omejili na ta razpon. Podobno smo morali ugotavljati parametre za začetni kartezični produkt – če je definicijsko območje funkcije od -10 do 10, je največja vrednost kartezičnega produkta padla v ta razpon. Poleg tega, da smo ugotovili te mejne vrednosti, pa smo morali za lep prikaz funkcije upoštevati tudi korak, s katerim smo povečevali tako vrednosti za kartezični produkt kot vrednost `c'ja. Bolj na gosto kot smo postavili te vrednosti, bolj lepo bi se funkcija (oziroma nivojnice) izrisale, problem pa nastane, ker je naš algoritem relativno časovno zahteven.
+\par
+Kot je opisano v opisu algoritma je bilo potrebno za vsako točko kartezičnega produkta izračunati vrednost, vzpostaviti povezave med točkami, iskati sosednja vozlišča, sosednje povezave itd. Torej že pri izbiri velikosti kartezičnega produkta (in s tem korak povečevanje razdalj me točkami), je to lahko ogromno vplivalo na čas izvajanja algoritma. Podoben problem je bil pri izbiri `c'ja oziroma bolj pri izbiri koraka, s katerim se povečuje (kako na gosto bomo risali nivojnice).
+\par
+Vse to je bilo potrebno vzeti v račun ko smo risali nivojnice in za kakovostno sliko je bilo potrebno kar dosti iskanja pravih parametrov sorazmerno s tem, da nam je v nekem relativno kratkem času algoritem zaključil.
+
+\subsection{3D Risanje}
+
+Razred Draw3D.java prejme nivojnice, ki vsebuje robove (edges), na dolocenih visinah. Paziti je treba na scale, saj se mora približno ujemati s prejetimi podatki. Sam program za risanje je dokaj preprost, vendar pa je zelo pomembno, kakšne podamo začetne parametre za izračun. Kartezični produkt se mora ujemati s definicijskim območjem funkcije. Manjši kot je korak kartezičnega produkta, večja je natančnost. Prav tako je potrebno paziti na razpon `Z' osi, saj se mora ta ujemati z zalogo vrednosti funkcije. Manjši kot je korak razpona, več je izohips in s tem tudi večja natančnost. V razredu Draw3D imamo tudi parameter z, ki ga za vsako izohipso povečamo. Ta ``z'' parameter je v večini enak razponu po Z osi pri računanju izohips. Konstantno in ločeno se povečuje za to, ker pride do težave pri funkcijah, ki imajo zelo veliko zalogo vrednosti, v tem primeru slika pride razpotegnjena po Z osi.
+\par
+Rezultati algoritma (več slik in videov izrisovanja: \href{https://gresak.io/mm}{\underline{gresak.io/mm}} )
+
+% slika6
+% slika7
+
+\subsection{Realni podatki}
+
+Algoritem smo stestirali tudi na realnih podatkih in sicer tako, da smo namesto kartezičnega produkta vzeli geografsko širino in geografsko dolžino. Obe te vrednosti smo najprej translirali tako, da smo vse skupaj postavili v sredino koordinatnega sistema. Nato smo za vrednosti teh vozlišč vzeli geografsko višino, ki smo jo pridobili s pomočjo google-apija 'elevation'. Seveda smo morali paziti na omejitve tega apija (število requestov ipd.).
+
+Kot posledica teh omejitev ter zgoraj opisane časovne zahtevnosti algoritma nismo bili najbolj zadovoljni z rezultatom. Problem je nastal, ker če smo hoteli natančno izrisati neko področje, smo morali vzeti kar velik razpon na drobno postavljenih točk (tudi do 100.000 točk), kar pa je pomenilo ogromno časovno zahtevo. Bolj kot smo to manjšali, manj 'zanimive' rezultate smo dobivali. Poleg tega pa smo morali ustrezno povečevati še 'c'. 3D izris je bil še dokaj lep, za 2D pa moramo imeti kar dobro domišljijo, da vidimo prave nivojnice.
+
+\section{Zaključek}
+
+S projektom smo spoznali izredno zanimiv način risanja nivojnic. Sprva, predno smo ga dodobra razumeli, smo bili malo skeptično o samem delovanju. Vedeli smo, s teoretične plati, da deloval bo, a nikakor si nismo predstavljali, da bodo tako natančni rezultati. Še posebno s 3D risanjem se vidi, da s pravimi parametri (velikost kartezičnega, korak kartezičnega, minC, maxC ter korakC) dobimo skoraj identične funkcije, kot pa jih nariše, na primer, WolframAlpha.
+\par
+Rezultati, ki smo jih dobivali, so nam vedno bolj vzbujali zanimanje in na koncu nikakor nismo bli zadovoljni z rezultati – dokler nismo res dobili popoln rezultat. Izbirali smo si vedno bolj zanimive funkcije in za katerokoli funkcijo smo si izbrali, naj je bila še tako kompleksna, je algoritem deloval popolno (če tukaj ne upoštevamo časovnega parametra), ko pa smo se začeli ubadati z realnimi podatki, pa se je stvar malce obrnila. Namreč kot opisano zgoraj nam nikakor ni uspelo dobro parametrizirati realnih podatkov, da bi nam v nekem zglednem času algoritem vrnil spodobne rezultate. Bodisi smo vzeli preveliko področje in preveč na drobno, kar je rezultiralo v (pre)dolgo delovanje algoritma, bodisi pa so bili rezultati nenatančni / nezadovoljivi.
+\par
+Algoritem bi seveda bilo možno tudi pohitriti do neke meje, a v vsakem primeru je potrebno n-krat izračunati določene stvari za delovanje algoritma (n – število vozlišč oz točk). Risanje nivojnic s pomočjo triangulacije je torej mogoče in zredno zanimivo, a za velika področja in natančnost lahko časovno zahtevno. Mi smo morali določati ali želimo veliko področje in malo natančnost ali pa veliko natančnost in manjše področje.
+\par
+Z rezultati in projektom smo izredno zadovoljni – res zanimiv projekt ki daje konkretne in zanimive, ``oprijemljive'' rezultate. Če bi imeli še malo več časa, bi lahko izpopolnili še risanje za realne podatke (najti bi bilo potrebno ravno prave parametre).
+
 
 \end{document}
