@@ -21,9 +21,6 @@ $(function () {
         $(carouselEl).find('.carousel-indicators').append(indicatorsEl);
         $(carouselEl).find('.carousel-inner').append(itemsEl);
         $('body').append(carouselEl);
-        $(carouselEl).carousel({
-          interval: 2000
-        });
       });
     });
   };
