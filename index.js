@@ -23,7 +23,11 @@ watch.watchTree(imagesPath, function () {
         return;
       }
       imagesObj[folder] = filesArray.map(function (imageFileName) {
-        return path.relative(__dirname, path.resolve(imagesPublicPath, folder, imageFileName));
+        var pathToImage = path.relative(__dirname, path.resolve(imagesPublicPath, folder, imageFileName));
+        return {
+          path: pathToImage,
+          name: path.basename(pathToImage, path.extname(pathToImage))
+        };
       });
     });
   });
