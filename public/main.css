@@ -74,3 +74,8 @@ h1 {
 .carousel-indicators > li.active {
   background-color: #333;
 }
+
+#video-link {
+  text-align: center;
+  margin-bottom: 20px;
+}

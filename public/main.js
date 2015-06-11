@@ -24,6 +24,8 @@ $(function () {
         carouselEls = carouselEls.add(carouselEl);
       });
       $('#loader').remove();
+      var movieLink = $('<div id="video-link"><a href="video" class="btn btn-success">Videos</a></div>');
+      carouselEls = carouselEls.add(movieLink);
       $('body').append(carouselEls);
     });
   };
