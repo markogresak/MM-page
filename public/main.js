@@ -2,7 +2,7 @@
 $(function () {
   var loadImages = function () {
     var carouselTemplateHtml = $('#carousel-template').remove().clone().removeAttr('id')[0].outerHTML;
-    $.getJSON('/images').then(function (imagesObj) {
+    return $.getJSON('/images').then(function (imagesObj) {
       Object.keys(imagesObj).forEach(function (folder) {
         var templateHtml = carouselTemplateHtml.replace(/\$1/g, folder);
         var carouselEl = $(templateHtml);
@@ -24,8 +24,6 @@ $(function () {
       });
     });
   };
-  loadImages();
-
   var resizeFn = function () {
     var windowHeight = $(window).height();
     $('.container-fluid').height(windowHeight);
@@ -33,5 +31,5 @@ $(function () {
   };
 
   $(window).resize(resizeFn);
-  resizeFn();
+  loadImages().then(resizeFn);
 });
