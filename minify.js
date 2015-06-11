@@ -15,7 +15,8 @@ new Imagemin()
   .src('public/images/**/*.png')
   .dest('public/images')
   .use(Imagemin.optipng({
-    optimizationLevel: 7
+    optimizationLevel: 7,
+    progressive: true
   }))
   .run(function () {
     console.log('minified images');
