@@ -5,6 +5,10 @@ html, body, .container-fluid {
   padding: 0;
 }
 
+#carousel-template {
+  display: none;
+}
+
 h1 {
   text-align: center;
   color: #555;
