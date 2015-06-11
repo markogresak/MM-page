@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "minify": "node minify.js"
+    "minify": "./node_modules/.bin/uglifyjs --screw-ie8 -m -c --unsafe -o public/main.min.js public/main.js && ./node_modules/.bin/cleancss -o public/main.min.css public/main.css && node minify.js"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,11 @@
   "dependencies": {
     "body-parser": "^1.12.4",
     "bootstrap": "^3.3.4",
+    "clean-css": "^3.3.1",
     "express": "^4.12.4",
     "imagemin": "^3.2.0",
     "jquery": "^2.1.4",
+    "uglify-js": "^2.4.23",
     "watch": "^0.16.0"
   }
 }
