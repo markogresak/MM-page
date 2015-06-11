@@ -1,13 +1,13 @@
 'use strict';
 var Imagemin = require('imagemin');
 var exec = require('child_process').exec;
-
+var bin = './node_modules/.bin/';
 // Minify main.js.
-exec('./node_modules/.bin/uglifyjs --screw-ie8 -m -c --unsafe -o public/main.min.js public/main.js', function () {
+exec(bin + 'uglifyjs --screw-ie8 -m -c --unsafe -o public/main.min.js public/main.js', function () {
   console.log('minified main.js');
 });
 // Add vendor prefixes to and minify main.css.
-exec('./node_modules/.bin/postcss --use autoprefixer public/main.css | ./node_modules/.bin/cleancss -o public/main.min.css', function () {
+exec(bin + 'postcss --use autoprefixer public/main.css | ' + bin + 'cleancss -o public/main.min.css', function () {
   console.log('minified main.css');
 });
 
