@@ -12,7 +12,6 @@ var imagesPublicPath = 'images';
 var imagesPath = path.resolve(publicPath, imagesPublicPath);
 // Object storing images file names.
 var imagesObj = {
-  'Original': [],
   '2D': [],
   '3D': []
 };
