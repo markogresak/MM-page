@@ -16,13 +16,30 @@
 \selectlanguage{slovene}
 \usepackage[toc,page]{appendix}
 \usepackage[pdftex]{graphicx} % za slike
+\usepackage[justification=centering]{caption}
 \usepackage{setspace}
+\usepackage{multicol}
 \usepackage{color}
 \definecolor{light-gray}{gray}{0.95}
 \usepackage{listings} % za vključevanje kode
+\usepackage{minted} % za barvanje kode
 \usepackage{hyperref}
 \renewcommand{\baselinestretch}{1.2} % za boljšo berljivost večji razmak
 \renewcommand{\appendixpagename}{Priloge}
+
+
+\newminted{python}{
+  % remove first 2 characters (padding spaces)
+  gobble = 2,
+  % set left line (code block padding hack)
+  frame = leftline,
+  % 0 width for frame ruler (gives padding but is invisible)
+  framerule = 0pt,
+  % distance between frame and content
+  framesep = 8pt,
+  % set background
+  bgcolor = light-gray
+}
 
 \title{\huge{Nivojske krivulje} \\ \Large{\em{Druga projektna naloga}}}
 \author{
@@ -43,11 +60,35 @@ Namen projekte naloge je bil prikazati rekonstrukcijo neke funkcije ali naravnih
 
 \section{Podatki}
 
-Za podatke smo si za umetne podatke izbrali nekaj že znanih funkcij \textbf{(TODO: IMENA)}, pomagali pa smo si z vizualizacijami grafov na platformi WolframAlpha, da smo lažje preverjali, kakšne razultate naj pričakujemo. Za podatke iz narave pa smo najprej poizkusili s podatki \href{http://en.wikipedia.org/wiki/Shuttle_Radar_Topography_Mission}{\underline{Shuttle Radar Topography Mission}} (SRTM), ki jih \href{http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/}{\underline{ponuja Nasa}} in so bili navedeni kot priporočen vir podatkov v poročilu. Vendar pa smo sprva imeli problem z iskanjem vira podatkov, porabili smo namreč nekaj ur, da smo prišli do navedene povezave ter ugotovili, kako brati podatke.
-\par
-Ker smo začeli dvomiti, da nam bo uspelo najti podatke, ki jih ponuja Nasa, je drug del ekipe začel z raziskovanjem \href{https://developers.google.com/maps/documentation/elevation/}{\underline{Google Maps Elevation API}}, kjer imamo na voljo \textit{2500} zahtev na dan, v vsaki zahtevi pa lahko zahtevamo podatke za do \textit{512} točk. Torej lahko na vsakih 24 ur dobimo višine za \(2500 \cdot 512 = 1,280,000\) geolokacijskih točk in če to še pomnožimo z vsemi člani, lahko dobimo do \textit{5,120,000} točk na dan, kar je bilo dovolj, da smo lahko izračunali in vizualizirali nivojske krivulje za nekaj zanimivh pokrajin.
+Za podatke smo si za umetne podatke izbrali nekaj že znanih funkcij: Ackleym, Beales, CrossInTray Sin, Matyas in Mishra. Pomagali pa smo si tudi z vizualizacijami grafov na platformi WolframAlpha, da smo lažje preverjali, kakšne razultate naj sploh pričakujemo.
 
-\pagebreak
+\subsection{Podatki iz narave}
+
+\subsubsection{SRTM meritve (Nasa)}
+
+Za podatke iz narave pa smo najprej poizkusili s podatki \href{http://en.wikipedia.org/wiki/Shuttle_Radar_Topography_Mission}{\underline{Shuttle Radar Topography Mission}} (SRTM), ki jih \href{http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/}{\underline{ponuja Nasa}} in so bili navedeni kot priporočen vir podatkov v poročilu. Vendar pa smo sprva imeli problem z iskanjem vira podatkov, porabili smo namreč nekaj ur, da smo prišli do navedene povezave ter ugotovili, kako brati podatke.
+\par
+Podatki so zakodirani v posebni obliki, zato je za iskano višino po posebnem algoritmu podatke odkodirati za dani zamljepisno širino ter dolžino. Za primer geolokacije Triglava \textit{(46.379347, 13.832887)}, oziroma če pretvorimo decimalni del v minute in sekunde \\
+\textit{(\(46^{\circ}\ 22'\ 45.6492"\), \(13^{\circ}\ 49'\ 58.3926"\))}. Potem moramo najprej poiskati ustrezno datoteko, v tem primeru se le-ta imenuje \texttt{N46E013.hgt}. Parametra \texttt{n} in \texttt{e} funkcije \texttt{get\_height} pa izračunamo po formuli \texttt{min * 60 + sec}. Za točko iz primera je najdena višina \textit{2490m}, kar po podatkih iz Google Maps odstopa za nekaj metrov, na katero pa seveda vpliva tudi natančnost zbranih podatkov. Vendar pa večja natančnost pomeni večjo velikost datotek, za primer najbolj natančnih meritev (1/9 kotne sekunde) podatki nanesejo več kot 600GB, kar pa seveda v tako omejenem času za izdelavo naloge verjetno ne bi mogli prenesti, sploh pa ne obdelati na osebnih računalnikih.
+\\
+Python koda za pridobivanje nadmorske višine dane datoteke ter odmika v minutah in sekundah:
+\begin{pythoncode}
+  def get_height(filename, n, e):
+    i = 1201 - int(round(n / 3, 0))
+    j = int(round(e / 3, 0))
+    with open(filename, "rb") as f:
+      f.seek(((i - 1) * 1201 + (j - 1)) * 2)
+      buf = f.read(2)
+      val = struct.unpack('>h', buf)
+      if not val == -32768:
+        return (round(n), round(e), val[0])
+      else:
+        return None
+\end{pythoncode}
+
+\subsubsection{Google Elevetion API}
+
+Ker je zgoraj opisani del vzel kar veliko časa, smo začeli dvomiti, da nam bo uspelo najti podatke pred rokom oddaje naloge, smo se odločili za drugi plan: \href{https://developers.google.com/maps/documentation/elevation/}{\underline{Google Maps Elevation API}}. Ta omogoča \textit{2500} zahtev na dan, v vsaki zahtevi pa lahko zahtevamo podatke za do \textit{512} točk. Torej lahko na vsakih 24 ur dobimo višine za \(2500 \cdot 512 = 1,280,000\) geolokacijskih točk in če to še pomnožimo z vsemi člani, lahko dobimo do \textit{5,120,000} točk na dan, kar je bilo dovolj, da smo lahko izračunali in vizualizirali nivojske krivulje za gori Uluru v Avstraliji ter Mt. Fuji, najvišje gore na Japonskem.
 
 \section{Triangulacija}
 
@@ -56,5 +97,9 @@ Triangulacija je postopek, kjer določamo oddaljenost točke tako, da izmerimo k
 \par
 Triangulacija se danes uporablja za merjenja (npr. geodeti), navigacijo, izračun pozicije teles v vesolju, izračun leta naboja iz orožja ali leta rakete ipd. Ne smemo pa je zamešati s trilateracijo, katero smo že spoznali med predstavitvami za prvo projektno nalogo, saj je sam postopek precej drugačen.
 
+\section{Nivojske krivulje}
+
+Nivojska krivulja funkcije dveh spremenljivk je krivulja okoli katere ima funkcija konstantno vrednost. Je presek tridimenzonalnega grafa, ki predstavlja funkcijo, z neko poljubno ravnino \(z = z1\). Uporablja se za najrazličnejše predstavitve v naravi; s skupnim imenom se v slovenščini imenujejo ``izočrte'' - so črte, ki na zemljevidu povezujejo točke enakih vrednosti fizikalnih, meteoroloških ali jezikoslovnih količin (vir: \href{http://sl.wikipedia.org/wiki/Izo%C4%8Drte}{\underline{Wikipedia: ``Izočrte''}}). \par
+V našem projektu smo se ukvarjali z izočrto pod imenom ``izohipsa'', ki v naravi povezuje mesta z isto nadmorsko višino oziroma translirano za naš problem - je črta, ki povezuje točke, kjer ima funkcija enako vrednost. Ko pa smo se kasneje ukvarjali s podatki iz narave pa smo dejansko poskusili risati izohipse določenih geografskih področij.
 
 \end{document}
