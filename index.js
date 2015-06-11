@@ -49,4 +49,5 @@ router.get('/', function (req, res) {
 app.use(appPath + '/images', router);
 // Listen on `port` (later proxied with nginx).
 app.listen(port);
+console.log('routes:',app._router.stack.map(function (r) { return r.regexp; }));
 console.log('listening on port', port);
