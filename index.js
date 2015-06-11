@@ -27,7 +27,7 @@ watch.watchTree(imagesPath, function () {
         var pathToImage = path.relative(__dirname, path.resolve(imagesPublicPath, folder, imageFileName));
         return {
           path: pathToImage,
-          name: path.basename(pathToImage, path.extname(pathToImage))
+          name: path.basename(pathToImage, path.extname(pathToImage)).replace(/_/g, ' ');
         };
       });
     });
