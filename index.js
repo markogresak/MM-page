@@ -42,11 +42,11 @@ app.use(appPath + '/bootstrap', express.static('node_modules/bootstrap/dist'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 var router = express.Router();
-router.get(appPath + '/', function (req, res) {
+router.get('/', function (req, res) {
   // Return object of images path as json response.
   res.json(imagesObj);
 });
-app.use('/images', router);
+app.use(appPath + '/images', router);
 // Listen on `port` (later proxied with nginx).
 app.listen(port);
 console.log('listening on port', port);
