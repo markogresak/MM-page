@@ -12,7 +12,7 @@ exec(bin + 'postcss --use autoprefixer public/main.css | ' + bin + 'cleancss -o 
   console.log('minified main.css');
 });
 
-glob('public/images/**/*.png', {}, function (err, files) {
+glob('public/images/**/*.jpg', {}, function (err, files) {
   if (err) {
     throw err;
   }
@@ -21,8 +21,7 @@ glob('public/images/**/*.png', {}, function (err, files) {
       new Imagemin()
         .src(file)
         .dest(file)
-        .use(Imagemin.optipng({
-          optimizationLevel: 7,
+        .use(Imagemin.jpegtran({
           progressive: true
         }))
         .run(function () {
