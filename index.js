@@ -5,6 +5,7 @@ var fs = require('fs');
 var path = require('path');
 var watch = require('watch');
 var port = 9500;
+var appPath = '/mm';
 // Path to images folder.
 var publicPath = path.relative(__dirname, 'public/');
 var imagesPublicPath = 'images';
@@ -34,14 +35,14 @@ watch.watchTree(imagesPath, function () {
 });
 // Init app and serve static files from public, jquery and bootstrap folers.
 var app = express();
-app.use('/mm', express.static('public'));
-app.use('/jquery', express.static('node_modules/jquery/dist'));
-app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
+app.use(appPath, express.static('public'));
+app.use(appPath + '/jquery', express.static('node_modules/jquery/dist'));
+app.use(appPath + '/bootstrap', express.static('node_modules/bootstrap/dist'));
 // Define `/images` endpoint to dynamically load images.
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 var router = express.Router();
-router.get('/', function (req, res) {
+router.get(appPath + '/', function (req, res) {
   // Return object of images path as json response.
   res.json(imagesObj);
 });
