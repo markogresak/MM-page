@@ -34,7 +34,7 @@ watch.watchTree(imagesPath, function () {
 });
 // Init app and serve static files from public, jquery and bootstrap folers.
 var app = express();
-app.use(express.static('public'));
+app.use('/mm', express.static('public'));
 app.use('/jquery', express.static('node_modules/jquery/dist'));
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
 // Define `/images` endpoint to dynamically load images.
