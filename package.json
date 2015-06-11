@@ -18,4 +18,9 @@
     "url": "https://github.com/markogresak/MM-page/issues"
   },
   "homepage": "https://github.com/markogresak/MM-page",
+  "dependencies": {
+    "bootstrap": "^3.3.4",
+    "express": "^4.12.4",
+    "jquery": "^2.1.4",
+  }
 }
