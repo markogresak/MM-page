@@ -63,6 +63,7 @@ h1 {
 .carousel-caption {
   color: #333;
   bottom: -70px;
+  text-shadow: none;
 }
 
 .carousel-indicators > li {
