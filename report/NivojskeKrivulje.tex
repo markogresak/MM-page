@@ -47,5 +47,14 @@ Za podatke smo si za umetne podatke izbrali nekaj že znanih funkcij \textbf{(TO
 \par
 Ker smo začeli dvomiti, da nam bo uspelo najti podatke, ki jih ponuja Nasa, je drug del ekipe začel z raziskovanjem \href{https://developers.google.com/maps/documentation/elevation/}{\underline{Google Maps Elevation API}}, kjer imamo na voljo \textit{2500} zahtev na dan, v vsaki zahtevi pa lahko zahtevamo podatke za do \textit{512} točk. Torej lahko na vsakih 24 ur dobimo višine za \(2500 \cdot 512 = 1,280,000\) geolokacijskih točk in če to še pomnožimo z vsemi člani, lahko dobimo do \textit{5,120,000} točk na dan, kar je bilo dovolj, da smo lahko izračunali in vizualizirali nivojske krivulje za nekaj zanimivh pokrajin.
 
+\pagebreak
+
+\section{Triangulacija}
+
+Triangulacija je postopek, kjer določamo oddaljenost točke tako, da izmerimo kota \(\alpha\) in \(\beta\) iz dveh drugih točk A in B, z medsebojno oddaljenostjo \(l\), kateri skupaj s ciljno točko tvorijo trikotnik. Oddaljenost \(d\) izračunamo po formuli
+\( d = l\ \cdot \frac{\sin \alpha \sin \beta}{\sin(\alpha + \beta)}\).
+\par
+Triangulacija se danes uporablja za merjenja (npr. geodeti), navigacijo, izračun pozicije teles v vesolju, izračun leta naboja iz orožja ali leta rakete ipd. Ne smemo pa je zamešati s trilateracijo, katero smo že spoznali med predstavitvami za prvo projektno nalogo, saj je sam postopek precej drugačen.
+
 
 \end{document}
