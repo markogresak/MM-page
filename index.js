@@ -1,5 +1,6 @@
 'use strict';
 var express = require('express');
+var bodyParser = require('body-parser');
 var fs = require('fs');
 var path = require('path');
 var watch = require('watch');
@@ -32,6 +33,15 @@ var app = express();
 app.use(express.static('public'));
 app.use('/jquery', express.static('node_modules/jquery/dist'));
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
+// Define `/images` endpoint to dynamically load images.
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+var router = express.Router();
+router.get('/', function (req, res) {
+  // Return object of images path as json response.
+  res.json(imagesObj);
+});
+app.use('/images', router);
 // Listen on `port` (later proxied with nginx).
 app.listen(port);
 console.log('listening on port', port);

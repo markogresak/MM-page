@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/markogresak/MM-page",
   "dependencies": {
+    "body-parser": "^1.12.4",
     "bootstrap": "^3.3.4",
     "express": "^4.12.4",
     "jquery": "^2.1.4",
