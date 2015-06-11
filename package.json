@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "minify": "./node_modules/.bin/uglifyjs --screw-ie8 -m -c --unsafe -o public/main.min.js public/main.js && ./node_modules/.bin/cleancss -o public/main.min.css public/main.css && node minify.js"
+    "minify": "node minify.js"
   },
   "repository": {
     "type": "git",
