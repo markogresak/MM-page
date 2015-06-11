@@ -12,8 +12,9 @@ var imagesPublicPath = 'images';
 var imagesPath = path.resolve(publicPath, imagesPublicPath);
 // Object storing images file names.
 var imagesObj = {
-  '2d': [],
-  '3d': []
+  'Original': [],
+  '2D': [],
+  '3D': []
 };
 // Watch imagesPath folder, update files on change.
 //  Function is called when watchTree is first declared and on each change inside imagesPath folder.
