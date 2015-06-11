@@ -79,5 +79,5 @@ h1 {
   text-align: center;
   margin-top: 20px;
   margin-bottom: 20px;
-  z-index: 999;
+  padding-bottom: 20px;
 }

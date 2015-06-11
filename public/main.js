@@ -27,6 +27,7 @@ $(function () {
       var movieLink = $('<div id="video-link"><a href="video" class="btn btn-success">Videos</a></div>');
       carouselEls = carouselEls.add(movieLink);
       $('body').append(carouselEls);
+      $('.container-fluid').last().css('padding-bottom', '50px');
     });
   };
   var resizeFn = function () {
