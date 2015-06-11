@@ -2,6 +2,7 @@
 $(function () {
   var loadImages = function () {
     var carouselTemplateHtml = $('#carousel-template').remove().clone().removeAttr('id')[0].outerHTML;
+    var carouselEls = $();
     return $.getJSON('/images').then(function (imagesObj) {
       Object.keys(imagesObj).forEach(function (folder) {
         var templateHtml = carouselTemplateHtml.replace(/\$1/g, folder);
@@ -20,8 +21,10 @@ $(function () {
         });
         $(carouselEl).find('.carousel-indicators').append(indicatorsEl);
         $(carouselEl).find('.carousel-inner').append(itemsEl);
-        $('body').append(carouselEl);
+        carouselEls = carouselEls.add(carouselEl);
       });
+      $('#loader').remove();
+      $('body').append(carouselEls);
     });
   };
   var resizeFn = function () {
@@ -29,7 +32,6 @@ $(function () {
     $('.container-fluid').height(windowHeight);
     $('.carousel-inner > .item > img').height(windowHeight * 0.8);
   };
-
   $(window).resize(resizeFn);
   loadImages().then(resizeFn);
 });
