@@ -1,0 +1,21 @@
+{
+  "name": "MM-page",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markogresak/MM-page"
+  },
+  "keywords": [],
+  "author": "markogresak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markogresak/MM-page/issues"
+  },
+  "homepage": "https://github.com/markogresak/MM-page",
+}
