@@ -1,5 +1,7 @@
 # MM functions page
 
+This project was created as a part of [Mathematical Modelling](https://ucilnica.fri.uni-lj.si/course/view.php?id=25&lang=en) course at [Faculty of Computer and Information Science, Ljubljana](http://www.fri.uni-lj.si/en/).
+
 ## Setup
 
  1. Clone the repository or download zip
